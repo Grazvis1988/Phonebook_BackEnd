@@ -54,6 +54,13 @@ app.get('/persons/:id', (req, res) => {
 	}
 })
 
+app.delete('/persons/:id', (req, res) => {
+	const id = Number(req.params.id)
+	persons = persons.filter( p => p.id !== id )
+
+	response.status(204).end()
+})
+
 const port = 3001
 			
 			
