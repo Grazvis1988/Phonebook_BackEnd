@@ -44,8 +44,19 @@ app.get('/info', (req, res) => {
 		`)
 })
 
-const port = 3001
+app.get('/persons/:id', (req, res) => {
+	const id = Number(req.params.id)
+	const person = persons.find( p => p.id === id )
+	if (person) {
+		res.json(person)
+	} else {
+		res.status(404).end()
+	}
+})
 
+const port = 3001
+			
+			
 app.listen(port)
 
-console.log(`Servers is listening on the port ${port}`)
+console.log(`Server is listening on the port ${port}`)
