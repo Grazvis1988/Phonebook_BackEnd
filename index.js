@@ -35,8 +35,17 @@ app.get('/persons', (req, res) => {
 	res.json(persons)
 })
 
+app.get('/info', (req, res) => {
+	const date = new Date()
+	res.send(`
+		<p>Phonebook has info for ${persons.length} people</p>
+
+		${date}
+		`)
+})
+
 const port = 3001
 
 app.listen(port)
 
-console.log(`Application is listening on the port ${port}`)
+console.log(`Servers is listening on the port ${port}`)
