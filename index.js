@@ -58,7 +58,28 @@ app.delete('/persons/:id', (req, res) => {
 	const id = Number(req.params.id)
 	persons = persons.filter( p => p.id !== id )
 
-	response.status(204).end()
+	res.status(204).end()
+})
+
+
+app.post('/persons', (req, res) => {
+	const randomNumber = Math.floor(Math.random() * 1000000000000000)
+	const body = req.body
+
+	if (!body.name || !body.number){
+	return (res.status(400).json({
+			error: 'Missing content'
+		})
+	)}
+
+	const person = {
+		id: randomNumber,
+		name: body.name,
+		number: body.number
+	}
+
+	persons = persons.concat(person)
+	res.json(person)
 })
 
 const port = 3001
