@@ -65,12 +65,20 @@ app.delete('/persons/:id', (req, res) => {
 app.post('/persons', (req, res) => {
 	const randomNumber = Math.floor(Math.random() * 1000000000000000)
 	const body = req.body
+	const names = persons.map( p => p.name )
+	const existDuplicate = names.includes(body.name)
 
 	if (!body.name || !body.number){
 	return (res.status(400).json({
 			error: 'Missing content'
 		})
-	)}
+	)} else if (existDuplicate) {
+		return (
+			res.status(400).json({
+				error: 'Name must be unique'
+			})
+		)
+	}
 
 	const person = {
 		id: randomNumber,
