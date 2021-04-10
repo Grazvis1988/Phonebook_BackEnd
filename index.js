@@ -1,13 +1,14 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express();
-
+app.use(express.json());
+app.use(cors());
 
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req[header] :body'))
 
-app.use(express.json());
 
 let persons = [
 	{
@@ -36,7 +37,7 @@ app.get('/', (req, res) => {
 	res.send('<h1>Welcome to phonebook API</h1>')
 })
 
-app.get('/persons', (req, res) => {
+app.get('/api/persons', (req, res) => {
 	res.json(persons)
 })
 
@@ -49,7 +50,7 @@ app.get('/info', (req, res) => {
 		`)
 })
 
-app.get('/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res) => {
 	const id = Number(req.params.id)
 	const person = persons.find( p => p.id === id )
 	if (person) {
@@ -59,7 +60,7 @@ app.get('/persons/:id', (req, res) => {
 	}
 })
 
-app.delete('/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res) => {
 	const id = Number(req.params.id)
 	persons = persons.filter( p => p.id !== id )
 
@@ -67,8 +68,8 @@ app.delete('/persons/:id', (req, res) => {
 })
 
 
-app.post('/persons', (req, res) => {
-	const randomNumber = Math.floor(Math.random() * 1000000000000000)
+app.post('/api/persons', (req, res) => {
+	const randomNumber = Math.floor(Math.random() * 100000000000000000)
 	const body = req.body
 	const names = persons.map( p => p.name )
 	const existDuplicate = names.includes(body.name)
@@ -95,9 +96,8 @@ app.post('/persons', (req, res) => {
 	res.json(person)
 })
 
-const port = 3001
+const PORT = process.env.PORT || 3001
 			
 			
-app.listen(port)
-
-console.log(`Server is listening on the port ${port}`)
+app.listen(PORT, () => { console.log(`Server is listening on the port ${PORT}`)
+})
