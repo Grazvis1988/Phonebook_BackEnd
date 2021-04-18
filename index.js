@@ -1,6 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+
+const Person = require('./modules/person')
 
 const app = express();
 
@@ -37,7 +40,39 @@ let persons = [
 
 
 app.get('/api/persons', (req, res) => {
-	res.json(persons)
+	Person.find({}).then( persons => {
+		res.json(persons)
+	})
+})
+
+app.post('/api/persons', (req, res) => {
+//	const randomNumber = Math.floor(Math.random() * 100000000000000000)
+	const body = req.body
+//	const names = persons.map( p => p.name )
+//	const existDuplicate = names.includes(body.name)
+
+	if (!body.name || !body.number){
+	return (res.status(400).json({
+			error: 'Missing content'
+		})
+	)} /*else if (existDuplicate) {
+		return (
+			res.status(400).json({
+				error: 'Name must be unique'
+			})
+		)
+	}*/
+
+	const person = new Person({
+//		id: randomNumber,
+		name: body.name,
+		number: body.number
+	})
+
+//	persons = persons.concat(person)
+	person.save().then( savedPerson => {
+		res.json(savedPerson)
+	})
 })
 
 app.get('/info', (req, res) => {
@@ -51,12 +86,16 @@ app.get('/info', (req, res) => {
 
 app.get('/api/persons/:id', (req, res) => {
 	const id = Number(req.params.id)
-	const person = persons.find( p => p.id === id )
+	Person.findById(req.params.id).then( person => {
+		res.json(person)
+	})
+/*	const person = persons.find( p => p.id === id )
 	if (person) {
 		res.json(person)
 	} else {
 		res.status(404).end()
 	}
+*/
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -67,35 +106,8 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 
-app.post('/api/persons', (req, res) => {
-	const randomNumber = Math.floor(Math.random() * 100000000000000000)
-	const body = req.body
-	const names = persons.map( p => p.name )
-	const existDuplicate = names.includes(body.name)
 
-	if (!body.name || !body.number){
-	return (res.status(400).json({
-			error: 'Missing content'
-		})
-	)} else if (existDuplicate) {
-		return (
-			res.status(400).json({
-				error: 'Name must be unique'
-			})
-		)
-	}
-
-	const person = {
-		id: randomNumber,
-		name: body.name,
-		number: body.number
-	}
-
-	persons = persons.concat(person)
-	res.json(person)
-})
-
-const PORT = process.env.PORT || 3001
+const PORT = process.env.REACT_APP_PORT 
 			
 			
 app.listen(PORT, () => { console.log(`Server is listening on the port ${PORT}`)
