@@ -3,9 +3,9 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
+const app = express();
 const Person = require('./modules/person')
 
-const app = express();
 
 app.use(express.static('build'))
 app.use(express.json());
@@ -14,7 +14,7 @@ app.use(cors());
 morgan.token('body', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req[header] :body'))
 
-
+/*
 let persons = [
 	{
 		id: 1,
@@ -37,7 +37,8 @@ let persons = [
 		number: "659-34566732"
 	}
 ]
-
+*/
+//------------------------------------------------------------------------------------ 
 
 app.get('/api/persons', (req, res) => {
 	Person.find({}).then( persons => {
@@ -77,18 +78,21 @@ app.post('/api/persons', (req, res) => {
 
 app.get('/info', (req, res) => {
 	const date = new Date()
-	res.send(`
+
+	Person.find({}).then(  persons =>  res.send(`
 		<p>Phonebook has info for ${persons.length} people</p>
 
 		${date}
 		`)
-})
+)
+	})
 
 app.get('/api/persons/:id', (req, res) => {
-	const id = Number(req.params.id)
+//	const id = Number(req.params.id)
 	Person.findById(req.params.id).then( person => {
 		res.json(person)
 	})
+	.catch( error => next(error))
 /*	const person = persons.find( p => p.id === id )
 	if (person) {
 		res.json(person)
@@ -98,14 +102,42 @@ app.get('/api/persons/:id', (req, res) => {
 */
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-	const id = Number(req.params.id)
-	persons = persons.filter( p => p.id !== id )
-
-	res.status(204).end()
+app.delete('/api/persons/:id', (req, res, next) => {
+	Person.findByIdAndRemove(req.params.id).then( person => {
+		res.status(204).end()
+	})
+	.catch( error => next(error))
 })
 
+app.put('api/persons/:id', (req, res, next) => {
+	const body = req.body
 
+	const person = { 
+		name: body.name,
+		number: body.number,
+	}
+	Person.findByIdAndUpdate(req.params.id, person, { new: true })
+	.then( updatedPerson => {
+		res.json(updatedPerson)
+	}).catch( error => next(error) )
+})
+
+//------------------------------------------------------------------------------------ 
+
+const UnknownEndPoint = (request, response) => {
+	response.status(404).send({ error: "Unknown Endpoint" })	
+}
+
+const errorHandler = ( error, request, response, next ) => {
+	console.log(error)
+	if(error.name === 'CastError') {
+		return response.status(400).send({ error: 'Mallformed id' })
+	}
+	next(error)
+}
+
+app.use(UnknownEndPoint)
+app.use(errorHandler)
 
 const PORT = process.env.REACT_APP_PORT 
 			
