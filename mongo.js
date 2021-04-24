@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 if (process.argv.length < 2 && process.argv.length > 4) {
-        console.log('Please provide password as an argument: node mongo.js <password> <name> <number>');
-        process.exit();
+	console.log('Please provide password as an argument: node mongo.js <password> <name> <number>')
+	process.exit()
 }
 
 const password = process.argv[2]
@@ -20,7 +20,7 @@ const Person = mongoose.model('Person', personSchema)
 
 
 
-if (process.argv.length == 3) {
+if (process.argv.length === 3) {
 	Person.find({}).then( result => {
 		console.log('Phonebook:')
 		result.forEach( person => {
@@ -29,8 +29,8 @@ if (process.argv.length == 3) {
 		mongoose.connection.close()
 	})
 } else {
-	personName = process.argv[3]
-	personNumber = process.argv[4]
+	const personName = process.argv[3]
+	const personNumber = process.argv[4]
 
 	const person = new Person({
 		contact: personName,
@@ -42,6 +42,6 @@ if (process.argv.length == 3) {
 		mongoose.connection.close()
 	}).catch( error => {
 		console.log('Something went wrong')
-		mongoose.connection.close()	
+		mongoose.connection.close()
 	})
 }
